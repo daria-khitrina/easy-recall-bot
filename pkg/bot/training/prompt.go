@@ -11,14 +11,24 @@ import (
 
 const ReviewCallbackPrefix = "t:grade:"
 
+// BuildPrompt picks a direction at random. German→English shows the example
+// openly; English→German hides both the German word and its example.
 func BuildPrompt(pair db.WordPair) string {
-	shown := formatPromptSide(pair.Word1, false)
-	expected := formatPromptSide(pair.Word2, true)
+	german := formatPromptSide(pair.Word1, false)
+	english := formatPromptSide(pair.Word2, true)
+	example := bot.EscapeMarkdown(pair.Example)
 	if rand.Intn(2) == 0 {
-		shown = formatPromptSide(pair.Word2, true)
-		expected = formatPromptSide(pair.Word1, false)
+		out := fmt.Sprintf("%s → ||%s||", german, english)
+		if example != "" {
+			out += "\n" + example
+		}
+		return out
 	}
-	return fmt.Sprintf("%s → ||%s||", shown, expected)
+	out := fmt.Sprintf("%s → ||%s||", english, german)
+	if example != "" {
+		out += "\n||" + example + "||"
+	}
+	return out
 }
 
 func BuildKeyboard(token string) *models.InlineKeyboardMarkup {

@@ -26,8 +26,7 @@ func HandleStart(ctx context.Context, b *bot.Bot, update *models.Update) {
 	}
 	b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: update.Message.Chat.ID,
-		Text: "Send me a CSV file with your words: German word, English translation (UTF-8, two columns). " +
-			"Sending a new file adds new cards and updates existing ones.\n\n" +
+		Text: "Add words by sending me a message, one card per line:\nGerman word, English translation, example sentence (optional)\n\nor attach a CSV file with the same columns (UTF-8). Existing words get updated.\n\n" +
 			"During /review, rate how easy it was to recall each word:\n- Again: could not recall it\n- Hard: recalled with effort\n- Good: recalled correctly\n- Easy: instant recall\n\n" +
 			"I will bring harder cards back sooner and easy ones later.\n\n" +
 			"Default settings enabled:\n- 3 sessions: morning, afternoon, evening\n- 5 words per session\n\n" +

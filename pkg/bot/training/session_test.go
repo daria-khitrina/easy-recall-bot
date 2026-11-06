@@ -2,6 +2,7 @@ package training
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -123,5 +124,24 @@ func TestEndDeletesPersistedSession(t *testing.T) {
 	}
 	if count != 0 {
 		t.Fatalf("expected session to be deleted, got %d", count)
+	}
+}
+
+func TestBuildPromptBothDirections(t *testing.T) {
+	pair := db.WordPair{Word1: "erledigen", Word2: "to complete", Example: "Ich erledige es."}
+	seen := map[bool]bool{}
+	for i := 0; i < 200 && len(seen) < 2; i++ {
+		got := BuildPrompt(pair)
+		forward := strings.HasPrefix(got, "erledigen")
+		seen[forward] = true
+		if forward && !strings.HasSuffix(got, "\nIch erledige es\\.") {
+			t.Fatalf("forward example should be visible: %q", got)
+		}
+		if !forward && !strings.HasSuffix(got, "\n||Ich erledige es\\.||") {
+			t.Fatalf("reverse example should be hidden: %q", got)
+		}
+	}
+	if len(seen) != 2 {
+		t.Fatalf("expected both directions, saw %v", seen)
 	}
 }

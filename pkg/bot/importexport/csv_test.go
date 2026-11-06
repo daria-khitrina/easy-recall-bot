@@ -135,3 +135,17 @@ func TestBuildExportCSV(t *testing.T) {
 		t.Fatalf("expected CRLF line endings")
 	}
 }
+
+func TestParseTextPairsKeepsCommasInExample(t *testing.T) {
+	text := "erledigen, to complete, Ich muss viele Aufgaben erledigen, bevor ich fahre.\n\nüben, to practise\nbad line\n"
+	pairs, skipped := ParseTextPairs(text)
+	if len(pairs) != 2 || skipped != 1 {
+		t.Fatalf("got %d pairs, %d skipped", len(pairs), skipped)
+	}
+	if pairs[0].Word1 != "erledigen" || pairs[0].Word2 != "to complete" || pairs[0].Example != "Ich muss viele Aufgaben erledigen, bevor ich fahre." {
+		t.Fatalf("unexpected first pair %+v", pairs[0])
+	}
+	if pairs[1].Example != "" {
+		t.Fatalf("expected empty example, got %+v", pairs[1])
+	}
+}

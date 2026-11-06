@@ -17,8 +17,9 @@ import (
 )
 
 type wordPairInput struct {
-	Word1 string
-	Word2 string
+	Word1   string
+	Word2   string
+	Example string
 }
 
 var utf8BOM = []byte{0xEF, 0xBB, 0xBF}
@@ -76,9 +77,14 @@ func ParseVocabularyCSV(data []byte) ([]wordPairInput, int, error) {
 			skipped++
 			continue
 		}
+		example := ""
+		if len(record) > 2 {
+			example = strings.TrimSpace(record[2])
+		}
 		pairs = append(pairs, wordPairInput{
-			Word1: word1,
-			Word2: word2,
+			Word1:   word1,
+			Word2:   word2,
+			Example: example,
 		})
 	}
 
@@ -182,7 +188,7 @@ func UpsertWordPairs(userID int64, pairs []wordPairInput) (int, int, error) {
 		for _, pair := range pairs {
 			result := tx.Model(&db.WordPair{}).
 				Where("user_id = ? AND word1 = ?", userID, pair.Word1).
-				Update("word2", pair.Word2)
+				Updates(map[string]any{"word2": pair.Word2, "example": pair.Example})
 			if result.Error != nil {
 				return result.Error
 			}
@@ -195,6 +201,7 @@ func UpsertWordPairs(userID int64, pairs []wordPairInput) (int, int, error) {
 				UserID:          userID,
 				Word1:           pair.Word1,
 				Word2:           pair.Word2,
+				Example:         pair.Example,
 				SrsState:        "new",
 				SrsDueAt:        now,
 				SrsIntervalDays: 0,
@@ -226,7 +233,11 @@ func BuildExportCSV(pairs []db.WordPair) ([]byte, error) {
 	writer.UseCRLF = true
 
 	for _, pair := range pairs {
-		if err := writer.Write([]string{pair.Word1, pair.Word2}); err != nil {
+		row := []string{pair.Word1, pair.Word2}
+		if pair.Example != "" {
+			row = append(row, pair.Example)
+		}
+		if err := writer.Write(row); err != nil {
 			return nil, err
 		}
 	}
@@ -249,4 +260,30 @@ func SortPairsForExport(pairs []db.WordPair) {
 		}
 		return pairs[i].Word1 < pairs[j].Word1
 	})
+}
+
+// ParseTextPairs reads "word, translation, example" lines from a chat message.
+// Only the first two commas split, so the example may contain commas.
+func ParseTextPairs(text string) ([]wordPairInput, int) {
+	var pairs []wordPairInput
+	skipped := 0
+	for _, line := range strings.Split(text, "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		parts := strings.SplitN(line, ",", 3)
+		for i := range parts {
+			parts[i] = strings.TrimSpace(parts[i])
+		}
+		if len(parts) < 2 || parts[0] == "" || parts[1] == "" {
+			skipped++
+			continue
+		}
+		pair := wordPairInput{Word1: parts[0], Word2: parts[1]}
+		if len(parts) == 3 {
+			pair.Example = parts[2]
+		}
+		pairs = append(pairs, pair)
+	}
+	return pairs, skipped
 }

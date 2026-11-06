@@ -14,6 +14,7 @@ type WordPair struct {
 	UserID            int64     `gorm:"index;uniqueIndex:idx_user_word1;index:idx_user_due"` // To keep pairs separate for each user
 	Word1             string    `gorm:"not null;uniqueIndex:idx_user_word1"`
 	Word2             string    `gorm:"not null"`
+	Example           string    `gorm:"not null;default:''"` // optional usage sentence in Word1's language
 	SrsState          string    `gorm:"not null;default:new"`
 	SrsDueAt          time.Time `gorm:"index:idx_user_due"`
 	SrsLastReviewedAt *time.Time

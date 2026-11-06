@@ -34,6 +34,9 @@ func DefaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 			if tryHandleOnboardingResetPhrase(ctx, b, update) {
 				return
 			}
+			if importexport.HandleTextImport(ctx, b, update) {
+				return
+			}
 		}
 		_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
@@ -48,7 +51,7 @@ func DefaultHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 				"\\* /feedback: send feedback to the bot admins\\.\n\n" +
 				"\\* /clear: remove all uploaded words\\.\n" +
 				"\\* /export: download your current vocabulary as CSV\\, edit it\\, then send it back here to import updates\\.\n" +
-				"\\* CSV upload: attach a CSV file here to import the cards\\.",
+				"\\* Add words: send lines like word\\, translation\\, example or attach a CSV file\\.",
 			ParseMode: models.ParseModeMarkdown,
 		})
 		if err != nil {
