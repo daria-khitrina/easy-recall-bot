@@ -17,7 +17,6 @@ COPY . .
 
 # Build the runtime and one-shot administration binaries
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o tg-word-reminder ./cmd/tg-word-reminder
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o notify-legacy-users ./cmd/notify-legacy-users
 
 # Second stage: Create a minimal image to run the binary
 FROM alpine:latest
@@ -29,8 +28,6 @@ WORKDIR /app
 
 # Copy the binaries from the builder stage
 COPY --from=builder /app/tg-word-reminder .
-COPY --from=builder /app/notify-legacy-users .
-COPY --from=builder /app/vocabularies /app/vocabularies
 
 # Command to run the bot
 CMD ["/app/tg-word-reminder"]

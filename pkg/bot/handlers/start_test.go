@@ -10,7 +10,7 @@ import (
 	"github.com/smith3v/tg-word-reminder/pkg/logger"
 )
 
-func TestHandleStartCreatesDefaultSettingsAndAsksForCSV(t *testing.T) {
+func TestHandleStartCreatesDefaultSettingsAndAsksForWords(t *testing.T) {
 	testutil.SetupTestDB(t)
 	logger.SetLogLevel(logger.ERROR)
 
@@ -23,7 +23,7 @@ func TestHandleStartCreatesDefaultSettingsAndAsksForCSV(t *testing.T) {
 	if err := db.DB.Where("user_id = ?", 202).First(&settings).Error; err != nil {
 		t.Fatalf("expected default settings: %v", err)
 	}
-	if got := client.lastMessageText(t); !strings.Contains(got, "CSV") {
-		t.Fatalf("expected CSV prompt, got %q", got)
+	if got := client.lastMessageText(t); !strings.Contains(got, "German word") {
+		t.Fatalf("expected words prompt, got %q", got)
 	}
 }

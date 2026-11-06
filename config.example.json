@@ -13,14 +13,6 @@
     "logging": {
         "level": "info",
         "gorm_level": "warn",
-        "file": "/app/logs/tg-word-reminder.log"
-    },
-    "feedback": {
-        "enabled": true,
-        "admin_ids": [123456789],
-        "timeout_minutes": 5
-    },
-    "onboarding": {
-        "init_vocabulary_path": "/app/vocabularies/multilang.csv"
+        "file": "./logs/bot.log"
     }
 }

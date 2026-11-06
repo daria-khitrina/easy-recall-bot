@@ -1,7 +1,7 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-The Go entrypoint lives in `cmd/tg-word-reminder/main.go`, while reusable logic sits under `pkg/`: `pkg/bot/handlers` owns Telegram command/update handlers, `pkg/bot/game` contains quiz session logic, `pkg/bot/reminders` schedules periodic reminders, and `pkg/bot/importexport` handles CSV parsing/export. `pkg/db` wires GORM to PostgreSQL, `pkg/config` loads JSON settings, and `pkg/logger` wraps `slog`. Test helpers live in `pkg/internal/testutil`. Sample CSVs (`example.csv`, `dutch-english.csv`) and the optional `utils/convert-xml-to-csv.py` script help prepare word pairs. Copy `config.example.json` to `config.json` for local secrets; the generated binary (`tg-word-reminder`) stays git-ignored.
+The Go entrypoint lives in `cmd/tg-word-reminder/main.go`, while reusable logic sits under `pkg/`: `pkg/bot/handlers` owns Telegram command/update handlers, `pkg/bot/training` runs spaced-repetition review, `pkg/bot/reminders` schedules periodic reminders, and `pkg/bot/importexport` parses chat-pasted `word, translation, example` lines. `pkg/db` wires GORM to PostgreSQL, `pkg/config` loads JSON settings, and `pkg/logger` wraps `slog`. Test helpers live in `pkg/internal/testutil`. Copy `config.example.json` to `config.json` for local secrets; the generated binary (`tg-word-reminder`) stays git-ignored.
 
 ## Build, Test, and Development Commands
 - `go run ./cmd/tg-word-reminder` – compile and launch the bot using the current `config.json`.
