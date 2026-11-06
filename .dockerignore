@@ -1,8 +1,0 @@
-pgdata/
-backups/
-.env
-.env.*
-.gocache
-.DS_Store
-config.json*
-tg-word-reminder

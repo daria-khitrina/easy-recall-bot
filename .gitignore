@@ -1,10 +1,7 @@
-config.json*
+node_modules
 .env
 .env.*
-/tg-word-reminder
+.netlify
 .DS_Store
-.gocache
-.gomodcache
-pgdata
-backups
+config.json*
 logs
