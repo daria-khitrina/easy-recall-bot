@@ -61,3 +61,13 @@ test('review with no cards', async () => {
   await send('/review', cmd('review'));
   assert.strictEqual(calls.at(-1).payload.text, 'Nothing to review right now.');
 });
+
+test('the Review 5 cards button starts a session, and replies keep the button visible', async () => {
+  const { calls, send } = setup();
+  await send('a, A');
+  assert.deepStrictEqual(calls.at(-1).payload.reply_markup.keyboard, [['Review 5 cards']]);
+  await send('Review 5 cards');
+  const card = calls.at(-1);
+  assert.strictEqual(card.method, 'sendMessage');
+  assert.strictEqual(card.payload.reply_markup.inline_keyboard[0].length, 4);
+});
