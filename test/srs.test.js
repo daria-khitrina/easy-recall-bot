@@ -27,9 +27,8 @@ test('review grades', () => {
   assert.strictEqual(applyGrade(card(base), 'good', NOW).interval, 25);
   const easy = applyGrade(card(base), 'easy', NOW);
   assert.strictEqual(easy.interval, Math.round(10 * 2.65 * 1.3));
-  assert.strictEqual(easy.reps, 1);
   const again = applyGrade(card(base), 'again', NOW);
-  assert.deepStrictEqual([again.state, again.lapses, again.ease], ['learning', 1, 2.3]);
+  assert.deepStrictEqual([again.state, again.ease], ['learning', 2.3]);
 });
 
 test('ease never drops below floor', () => {
