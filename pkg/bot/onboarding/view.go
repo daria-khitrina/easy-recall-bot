@@ -8,7 +8,8 @@ import (
 
 func RenderLearningLanguagePrompt() (string, *models.InlineKeyboardMarkup) {
 	text := "Welcome!\n\nI will help you remember words with short review cards and repeating reminders at smart intervals.\n\nChoose the language you are learning."
-	return text, renderLanguageKeyboard(ActionSelectLearning, "", "")
+	// shortcut: German→English only; the "en" button is hidden, re-add it to learn English.
+	return text, renderLanguageKeyboard(ActionSelectLearning, "en", "")
 }
 
 func RenderResetWarningPrompt() (string, *models.InlineKeyboardMarkup) {

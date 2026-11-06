@@ -10,7 +10,6 @@ import (
 	"github.com/smith3v/tg-word-reminder/pkg/bot/feedback"
 	"github.com/smith3v/tg-word-reminder/pkg/bot/game"
 	"github.com/smith3v/tg-word-reminder/pkg/bot/handlers"
-	"github.com/smith3v/tg-word-reminder/pkg/bot/onboarding"
 	"github.com/smith3v/tg-word-reminder/pkg/bot/reminders"
 	"github.com/smith3v/tg-word-reminder/pkg/bot/stats"
 	"github.com/smith3v/tg-word-reminder/pkg/bot/training"
@@ -46,9 +45,6 @@ func main() {
 	if err := db.InitDB(config.AppConfig.Database); err != nil {
 		logger.Error("failed to initialize database", "error", err)
 		os.Exit(1)
-	}
-	if err := onboarding.RefreshInitVocabularyFromConfig(); err != nil {
-		logger.Error("failed to refresh init vocabulary", "path", config.AppConfig.Onboarding.InitVocabularyPath, "error", err)
 	}
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)

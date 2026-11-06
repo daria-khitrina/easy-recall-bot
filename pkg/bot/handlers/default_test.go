@@ -56,20 +56,14 @@ func TestDefaultHandlerConsumesResetPhraseFlow(t *testing.T) {
 		t.Fatalf("failed to count pairs: %v", err)
 	}
 	if count != 1 {
-		t.Fatalf("expected pairs to remain until initialization, got %d", count)
+		t.Fatalf("expected the old pair replaced by one starter pair, got %d", count)
 	}
-
-	var state db.OnboardingState
-	if err := db.DB.Where("user_id = ?", 200).First(&state).Error; err != nil {
-		t.Fatalf("expected onboarding state to exist after restart: %v", err)
+	var pair db.WordPair
+	if err := db.DB.Where("user_id = ?", 200).First(&pair).Error; err != nil || pair.Word1 != "hallo" {
+		t.Fatalf("expected starter pair after reset, got %+v err=%v", pair, err)
 	}
-	if state.Step != "choose_learning" || state.AwaitingResetPhrase || !state.ResetPending {
-		t.Fatalf("expected onboarding wizard step after reset, got %+v", state)
-	}
-
-	got := client.lastMessageText(t)
-	if !strings.Contains(got, "Choose the language you are learning") {
-		t.Fatalf("expected onboarding prompt after reset, got %q", got)
+	if got := client.lastMessageText(t); !strings.Contains(got, "German -> ") {
+		t.Fatalf("expected completion message after reset, got %q", got)
 	}
 }
 

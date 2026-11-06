@@ -43,7 +43,7 @@ func TestRefreshInitVocabularyFromFileMissingRequiredColumn(t *testing.T) {
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, "bad.csv")
-	content := "en,ru,nl,es,de\nhello,привет,hallo,hola,hallo\n"
+	content := "en,ru,nl,es\nhello,привет,hallo,hola\n"
 	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
 		t.Fatalf("failed to write csv: %v", err)
 	}
@@ -52,7 +52,7 @@ func TestRefreshInitVocabularyFromFileMissingRequiredColumn(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected refresh to fail")
 	}
-	if !strings.Contains(err.Error(), "fr") {
+	if !strings.Contains(err.Error(), "de") {
 		t.Fatalf("expected missing column message, got %v", err)
 	}
 

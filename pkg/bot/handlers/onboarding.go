@@ -206,12 +206,31 @@ func sendOnboardingLearningPrompt(ctx context.Context, b *bot.Bot, chatID, userI
 	if _, err := onboarding.Begin(userID); err != nil {
 		return err
 	}
-	text, keyboard := onboarding.RenderLearningLanguagePrompt()
-	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:      chatID,
-		Text:        text,
-		ReplyMarkup: keyboard,
-	})
+	return finishGermanEnglishOnboarding(ctx, b, chatID, userID)
+}
+
+// finishGermanEnglishOnboarding skips the wizard: this bot only teaches German (known: English).
+func finishGermanEnglishOnboarding(ctx context.Context, b *bot.Bot, chatID, userID int64) error {
+	if _, err := onboarding.SetLearningLanguage(userID, "de"); err != nil {
+		return err
+	}
+	state, err := onboarding.SetKnownLanguage(userID, "en")
+	if err != nil {
+		return err
+	}
+	inserted, err := onboarding.ProvisionUserVocabularyAndDefaults(userID, "de", "en")
+	if err != nil {
+		return err
+	}
+	if state.ResetPending {
+		training.DefaultManager.EndAllForUser(userID)
+		game.DefaultManager.EndAllForUser(userID, "reset")
+	}
+	text := fmt.Sprintf(
+		"%s -> %s: %d cards\n\nDuring /review, rate how easy it was to recall each word:\n- Again: could not recall it\n- Hard: recalled with effort\n- Good: recalled correctly\n- Easy: instant recall\n\nI will bring harder cards back sooner and easy ones later.\n\nDefault settings enabled:\n- 3 sessions: morning, afternoon, evening\n- 5 words per session\n\nUse /review to start training, /game for quiz mode, or /settings to adjust preferences.",
+		onboarding.LabelForLanguage("de"), onboarding.LabelForLanguage("en"), inserted,
+	)
+	_, err = b.SendMessage(ctx, &bot.SendMessageParams{ChatID: chatID, Text: text})
 	return err
 }
 
@@ -266,12 +285,7 @@ func tryHandleOnboardingResetPhrase(ctx context.Context, b *bot.Bot, update *mod
 		return true
 	}
 
-	text, keyboard := onboarding.RenderLearningLanguagePrompt()
-	if _, err := b.SendMessage(ctx, &bot.SendMessageParams{
-		ChatID:      update.Message.Chat.ID,
-		Text:        text,
-		ReplyMarkup: keyboard,
-	}); err != nil {
+	if err := finishGermanEnglishOnboarding(ctx, b, update.Message.Chat.ID, update.Message.From.ID); err != nil {
 		logger.Error("failed to restart onboarding after reset", "user_id", update.Message.From.ID, "error", err)
 		b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,

@@ -19,68 +19,18 @@ func HandleStart(ctx context.Context, b *bot.Bot, update *models.Update) {
 		return
 	}
 
-	hasData, err := onboarding.HasExistingUserData(update.Message.From.ID)
-	if err != nil {
-		logger.Error("failed to check existing onboarding data", "user_id", update.Message.From.ID, "error", err)
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Failed to start onboarding. Please try again later.",
-		})
+	if err := onboarding.EnsureDefaultSettings(update.Message.From.ID); err != nil {
+		logger.Error("failed to ensure default settings", "user_id", update.Message.From.ID, "error", err)
+		b.SendMessage(ctx, &bot.SendMessageParams{ChatID: update.Message.Chat.ID, Text: "Failed to start. Please try again later."})
 		return
 	}
-	hasInitData, err := onboarding.HasInitVocabularyData()
-	if err != nil {
-		logger.Error("failed to check init vocabulary availability", "user_id", update.Message.From.ID, "error", err)
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Failed to start onboarding. Please try again later.",
-		})
-		return
-	}
-	if hasData {
-		if !hasInitData {
-			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: update.Message.Chat.ID,
-				Text: "Built-in onboarding vocabulary is unavailable right now.\n" +
-					"Your existing data is unchanged. Please try again later.",
-			})
-			return
-		}
-		if err := onboarding.SetAwaitingResetPhrase(update.Message.From.ID); err != nil {
-			logger.Error("failed to set onboarding reset phrase state", "user_id", update.Message.From.ID, "error", err)
-			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: update.Message.Chat.ID,
-				Text:   "Failed to start onboarding. Please try again later.",
-			})
-			return
-		}
-		text, keyboard := onboarding.RenderResetWarningPrompt()
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID:      update.Message.Chat.ID,
-			Text:        text,
-			ReplyMarkup: keyboard,
-		})
-		return
-	}
-	if !hasInitData {
-		if err := onboarding.ClearState(update.Message.From.ID); err != nil {
-			logger.Error("failed to clear onboarding state while init vocabulary is unavailable", "user_id", update.Message.From.ID, "error", err)
-		}
-		if err := onboarding.EnsureDefaultSettings(update.Message.From.ID); err != nil {
-			logger.Error("failed to ensure default settings while init vocabulary is unavailable", "user_id", update.Message.From.ID, "error", err)
-		}
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text: "Built-in onboarding vocabulary is unavailable right now.\n" +
-				"You can still upload your own CSV file with cards to get started.",
-		})
-		return
-	}
-	if err := sendOnboardingLearningPrompt(ctx, b, update.Message.Chat.ID, update.Message.From.ID); err != nil {
-		logger.Error("failed to start onboarding wizard", "user_id", update.Message.From.ID, "error", err)
-		b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Failed to start onboarding. Please try again later.",
-		})
-	}
+	b.SendMessage(ctx, &bot.SendMessageParams{
+		ChatID: update.Message.Chat.ID,
+		Text: "Send me a CSV file with your words: German word, English translation (UTF-8, two columns). " +
+			"Sending a new file adds new cards and updates existing ones.\n\n" +
+			"During /review, rate how easy it was to recall each word:\n- Again: could not recall it\n- Hard: recalled with effort\n- Good: recalled correctly\n- Easy: instant recall\n\n" +
+			"I will bring harder cards back sooner and easy ones later.\n\n" +
+			"Default settings enabled:\n- 3 sessions: morning, afternoon, evening\n- 5 words per session\n\n" +
+			"Use /review to start training, /game for quiz mode, or /settings to adjust preferences.",
+	})
 }

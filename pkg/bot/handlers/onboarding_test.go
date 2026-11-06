@@ -63,7 +63,7 @@ func TestHandleOnboardingCallbackStopsWizardWhenInitVocabularyMissing(t *testing
 
 	client := newMockClient()
 	b := newTestTelegramBot(t, client)
-	update := newTestCallbackUpdate(onboarding.BuildKnownCallback("ru"), 302, 302, 89)
+	update := newTestCallbackUpdate(onboarding.BuildKnownCallback("de"), 302, 302, 89)
 
 	HandleOnboardingCallback(context.Background(), b, update)
 
@@ -98,7 +98,7 @@ func TestHandleOnboardingCallbackAtomicallyCompletesPendingReset(t *testing.T) {
 		game.ResetDefaultManager(time.Now)
 	})
 
-	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", RU: "привет"}).Error; err != nil {
+	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", DE: "hallo"}).Error; err != nil {
 		t.Fatalf("failed to seed init vocabulary: %v", err)
 	}
 	oldPair := db.WordPair{
@@ -128,7 +128,7 @@ func TestHandleOnboardingCallbackAtomicallyCompletesPendingReset(t *testing.T) {
 
 	if err := db.DB.Create(&db.OnboardingState{
 		UserID: userID, Step: onboarding.StepConfirmImport,
-		LearningLang: "en", KnownLang: "ru", ResetPending: true,
+		LearningLang: "en", KnownLang: "de", ResetPending: true,
 	}).Error; err != nil {
 		t.Fatalf("failed to seed onboarding state: %v", err)
 	}
@@ -185,7 +185,7 @@ func TestHandleOnboardingCallbackAtomicallyCompletesPendingReset(t *testing.T) {
 	if err := db.DB.Where("user_id = ?", userID).Find(&pairs).Error; err != nil {
 		t.Fatalf("failed to load user pairs: %v", err)
 	}
-	if len(pairs) != 1 || pairs[0].Word1 != "hello" || pairs[0].Word2 != "привет" {
+	if len(pairs) != 1 || pairs[0].Word1 != "hello" || pairs[0].Word2 != "hallo" {
 		t.Fatalf("expected only replacement pair, got %+v", pairs)
 	}
 

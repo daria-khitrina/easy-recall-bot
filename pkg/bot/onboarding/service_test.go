@@ -16,7 +16,7 @@ func TestProvisionUserVocabularyAndDefaults(t *testing.T) {
 
 	rows := []db.InitVocabulary{
 		{EN: "hello", RU: "привет", NL: "hallo", ES: "hola", DE: "hallo", FR: "salut"},
-		{EN: "bye", RU: "", NL: "dag", ES: "adios", DE: "tschuss", FR: "au revoir"},
+		{EN: "bye", RU: "x", NL: "dag", ES: "adios", DE: "", FR: "au revoir"},
 	}
 	if err := db.DB.Create(&rows).Error; err != nil {
 		t.Fatalf("failed to seed init rows: %v", err)
@@ -27,11 +27,11 @@ func TestProvisionUserVocabularyAndDefaults(t *testing.T) {
 	if _, err := SetLearningLanguage(5001, "en"); err != nil {
 		t.Fatalf("failed to select learning language: %v", err)
 	}
-	if _, err := SetKnownLanguage(5001, "ru"); err != nil {
+	if _, err := SetKnownLanguage(5001, "de"); err != nil {
 		t.Fatalf("failed to select known language: %v", err)
 	}
 
-	inserted, err := ProvisionUserVocabularyAndDefaults(5001, "en", "ru")
+	inserted, err := ProvisionUserVocabularyAndDefaults(5001, "en", "de")
 	if err != nil {
 		t.Fatalf("provision failed: %v", err)
 	}
@@ -61,7 +61,7 @@ func TestProvisionReplacesPendingResetDataAndPreservesGameStatistics(t *testing.
 
 	userID := int64(7001)
 	now := time.Now().UTC()
-	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", RU: "привет"}).Error; err != nil {
+	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", DE: "hallo"}).Error; err != nil {
 		t.Fatalf("failed to seed init vocabulary: %v", err)
 	}
 	if err := db.DB.Create(&db.WordPair{UserID: userID, Word1: "old", Word2: "card", SrsState: "review", SrsDueAt: now}).Error; err != nil {
@@ -85,11 +85,11 @@ func TestProvisionReplacesPendingResetDataAndPreservesGameStatistics(t *testing.
 	if _, err := SetLearningLanguage(userID, "en"); err != nil {
 		t.Fatalf("failed to select learning language: %v", err)
 	}
-	if _, err := SetKnownLanguage(userID, "ru"); err != nil {
+	if _, err := SetKnownLanguage(userID, "de"); err != nil {
 		t.Fatalf("failed to select known language: %v", err)
 	}
 
-	inserted, err := ProvisionUserVocabularyAndDefaults(userID, "en", "ru")
+	inserted, err := ProvisionUserVocabularyAndDefaults(userID, "en", "de")
 	if err != nil {
 		t.Fatalf("replacement failed: %v", err)
 	}
@@ -105,7 +105,7 @@ func TestProvisionReplacesPendingResetDataAndPreservesGameStatistics(t *testing.
 	if err := db.DB.Where("user_id = ?", userID).Find(&pairs).Error; err != nil {
 		t.Fatalf("failed to load replacement pairs: %v", err)
 	}
-	if len(pairs) != 1 || pairs[0].Word1 != "hello" || pairs[0].Word2 != "привет" {
+	if len(pairs) != 1 || pairs[0].Word1 != "hello" || pairs[0].Word2 != "hallo" {
 		t.Fatalf("expected only the starter pair, got %+v", pairs)
 	}
 
@@ -137,7 +137,7 @@ func TestProvisionPendingResetRollsBackDeletionOnInsertFailure(t *testing.T) {
 		UserID: userID, ChatID: userID, PairIDs: datatypes.JSON("[]"),
 		LastActivityAt: now, ExpiresAt: now.Add(time.Hour),
 	}
-	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", RU: "привет"}).Error; err != nil {
+	if err := db.DB.Create(&db.InitVocabulary{EN: "hello", DE: "hallo"}).Error; err != nil {
 		t.Fatalf("failed to seed init vocabulary: %v", err)
 	}
 	if err := db.DB.Create(&oldPair).Error; err != nil {
@@ -155,7 +155,7 @@ func TestProvisionPendingResetRollsBackDeletionOnInsertFailure(t *testing.T) {
 	if _, err := SetLearningLanguage(userID, "en"); err != nil {
 		t.Fatalf("failed to select learning language: %v", err)
 	}
-	if _, err := SetKnownLanguage(userID, "ru"); err != nil {
+	if _, err := SetKnownLanguage(userID, "de"); err != nil {
 		t.Fatalf("failed to select known language: %v", err)
 	}
 
@@ -168,7 +168,7 @@ func TestProvisionPendingResetRollsBackDeletionOnInsertFailure(t *testing.T) {
 		t.Fatalf("failed to register create callback: %v", err)
 	}
 
-	if _, err := ProvisionUserVocabularyAndDefaults(userID, "en", "ru"); !errors.Is(err, forcedErr) {
+	if _, err := ProvisionUserVocabularyAndDefaults(userID, "en", "de"); !errors.Is(err, forcedErr) {
 		t.Fatalf("expected forced insert failure, got %v", err)
 	}
 
@@ -221,7 +221,7 @@ func TestResetPendingSurvivesWizardNavigation(t *testing.T) {
 	if _, err := SetLearningLanguage(userID, "en"); err != nil {
 		t.Fatalf("failed to reselect learning language: %v", err)
 	}
-	if _, err := SetKnownLanguage(userID, "ru"); err != nil {
+	if _, err := SetKnownLanguage(userID, "de"); err != nil {
 		t.Fatalf("failed to select known language: %v", err)
 	}
 	state, err := BackToKnown(userID)

@@ -10,7 +10,7 @@ func TestParseCallbackData(t *testing.T) {
 		code string
 	}{
 		{name: "learning", data: BuildLearningCallback("en"), kind: ActionSelectLearning, code: "en"},
-		{name: "known", data: BuildKnownCallback("ru"), kind: ActionSelectKnown, code: "ru"},
+		{name: "known", data: BuildKnownCallback("de"), kind: ActionSelectKnown, code: "de"},
 		{name: "confirm", data: BuildConfirmCallback(), kind: ActionConfirm},
 		{name: "back learning", data: BuildBackLearningCallback(), kind: ActionBackLearning},
 		{name: "back known", data: BuildBackKnownCallback(), kind: ActionBackKnown},

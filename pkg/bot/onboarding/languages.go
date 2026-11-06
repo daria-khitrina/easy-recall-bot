@@ -3,11 +3,7 @@ package onboarding
 // LanguageOptions controls both allowed languages and their display order.
 var LanguageOptions = []Language{
 	{Code: "en", Label: "🇬🇧 English"},
-	{Code: "ru", Label: "🇷🇺 Russian"},
-	{Code: "nl", Label: "🇳🇱 Dutch"},
-	{Code: "es", Label: "🇪🇸 Spanish"},
 	{Code: "de", Label: "🇩🇪 German"},
-	{Code: "fr", Label: "🇫🇷 French"},
 }
 
 type Language struct {
