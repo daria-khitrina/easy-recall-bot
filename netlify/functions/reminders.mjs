@@ -1,3 +1,5 @@
+// Imported directly so Netlify's file tracer ships @netlify/blobs (store.js only requires it lazily).
+import '@netlify/blobs';
 import { Telegram } from 'telegraf';
 import { runReminders } from '../../lib/reminders.js';
 import { blobStore } from '../../lib/store.js';

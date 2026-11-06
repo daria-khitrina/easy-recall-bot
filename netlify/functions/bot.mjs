@@ -1,3 +1,6 @@
+// Imported directly so Netlify's file tracer ships telegraf (it only sees dependencies of the entry file).
+import 'telegraf';
+import '@netlify/blobs';
 import { createBot } from '../../lib/bot.js';
 import { blobStore } from '../../lib/store.js';
 
