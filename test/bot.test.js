@@ -71,3 +71,18 @@ test('the Review 5 cards button starts a session, and replies keep the button vi
   assert.strictEqual(card.method, 'sendMessage');
   assert.strictEqual(card.payload.reply_markup.inline_keyboard[0].length, 4);
 });
+
+test('a storage failure is reported to the user instead of staying silent', async () => {
+  const { calls } = setup();
+  const failing = { load: async () => { throw new Error('blobs down'); }, save: async () => {} };
+  const bot = createBot({ token: '1:test', store: failing, allowedIds: ['42'] });
+  bot.botInfo = { id: 1, is_bot: true, first_name: 'b', username: 'b' };
+  const quiet = console.error;
+  console.error = () => {};
+  try {
+    await bot.handleUpdate({ update_id: 1, message: { message_id: 1, date: 0, chat: { id: 42, type: 'private' }, from: { id: 42, is_bot: false, first_name: 'u' }, text: 'a, b' } });
+  } finally {
+    console.error = quiet;
+  }
+  assert.match(calls.at(-1).payload.text, /Something went wrong/);
+});
