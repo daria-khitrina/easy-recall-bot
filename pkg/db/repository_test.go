@@ -98,3 +98,12 @@ func TestMigrateOnboardingResetPendingColumn(t *testing.T) {
 		t.Fatalf("expected reset_pending column to exist")
 	}
 }
+
+func TestDsnQuote(t *testing.T) {
+	if got := dsnQuote(""); got != "''" {
+		t.Fatalf("empty: %q", got)
+	}
+	if got := dsnQuote(`a'b\c`); got != `'a\'b\\c'` {
+		t.Fatalf("escape: %q", got)
+	}
+}

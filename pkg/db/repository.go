@@ -3,6 +3,7 @@ package db
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/smith3v/tg-word-reminder/pkg/config"
 	"github.com/smith3v/tg-word-reminder/pkg/logger"
@@ -13,14 +14,21 @@ import (
 // Export DB variable
 var DB *gorm.DB
 
+// dsnQuote quotes a libpq key/value so empty or spaced values don't swallow the next key.
+func dsnQuote(v string) string {
+	return "'" + strings.NewReplacer(`\`, `\\`, "'", `\'`).Replace(v) + "'"
+}
+
 func InitDB(cfg config.DatabaseConfig) error {
 	var err error
-	dsn := "host=" + cfg.Host +
-		" user=" + cfg.User +
-		" password=" + cfg.Password +
-		" dbname=" + cfg.DBName +
-		" port=" + strconv.Itoa(cfg.Port) +
-		" sslmode=" + cfg.SSLMode
+	dsn := strings.Join([]string{
+		"host=" + dsnQuote(cfg.Host),
+		"user=" + dsnQuote(cfg.User),
+		"password=" + dsnQuote(cfg.Password),
+		"dbname=" + dsnQuote(cfg.DBName),
+		"port=" + strconv.Itoa(cfg.Port),
+		"sslmode=" + dsnQuote(cfg.SSLMode),
+	}, " ")
 	gormLogger, gormErr := newGormLogger(config.AppConfig.Logging.GormLevel)
 	if gormErr != nil {
 		logger.Error("invalid gorm log level", "value", config.AppConfig.Logging.GormLevel, "error", gormErr)
