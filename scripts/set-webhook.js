@@ -9,6 +9,10 @@ const { Telegram } = require('telegraf');
     console.error('Need site URL argument and TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET env vars.');
     process.exit(1);
   }
+  if (!/^[A-Za-z0-9_-]{1,256}$/.test(secret)) {
+    console.error('TELEGRAM_WEBHOOK_SECRET may only contain A-Z, a-z, 0-9, _ and - (try: openssl rand -hex 24).');
+    process.exit(1);
+  }
   const url = `${site.replace(/\/$/, '')}/.netlify/functions/bot`;
   const tg = new Telegram(token);
   await tg.setWebhook(url, { secret_token: secret, allowed_updates: ['message', 'callback_query'] });
