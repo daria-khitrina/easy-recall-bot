@@ -55,8 +55,8 @@ npm test
 
 ## Layout
 
-- `netlify/functions/bot.js` – Telegram webhook
-- `netlify/functions/reminders.js` – hourly scheduled function (acts at the 3 reminder hours)
+- `netlify/functions/bot.mjs` – Telegram webhook
+- `netlify/functions/reminders.mjs` – hourly scheduled function (acts at the 3 reminder hours)
 - `lib/srs.js` – spaced-repetition scheduling
 - `lib/parse.js`, `lib/words.js` – parsing and saving pasted cards
 - `lib/prompt.js` – card text with spoilers
