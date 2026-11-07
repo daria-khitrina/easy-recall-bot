@@ -86,3 +86,13 @@ test('a storage failure is reported to the user instead of staying silent', asyn
   }
   assert.match(calls.at(-1).payload.text, /Something went wrong/);
 });
+
+test('old-format buttons without direction still work', async () => {
+  const { calls, send, press } = setup();
+  await send('a, A\nb, B');
+  await send('/review', cmd('review'));
+  const id = calls.at(-1).payload.reply_markup.inline_keyboard[0][3].callback_data.split(':')[1];
+  await press(`g:${id}:easy:2`);
+  assert.ok(calls.some((c) => c.method === 'editMessageReplyMarkup'));
+  assert.strictEqual(calls.at(-1).method, 'sendMessage');
+});
