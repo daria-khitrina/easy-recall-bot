@@ -32,9 +32,9 @@ test('import via message, then review a full session', async () => {
   assert.strictEqual(first.method, 'sendMessage');
   assert.strictEqual(first.payload.parse_mode, 'MarkdownV2');
   const buttons = first.payload.reply_markup.inline_keyboard[0];
-  assert.deepStrictEqual(buttons.map((b) => b.text), ['Again', 'Hard', 'Good', 'Easy']);
+  assert.deepStrictEqual(buttons.map((b) => b.text), ['Easy', 'Good', 'Hard', 'Again']);
 
-  await press(buttons[2].callback_data); // Good
+  await press(buttons[1].callback_data); // Good
   assert.ok(calls.some((c) => c.method === 'editMessageReplyMarkup'));
   const second = calls.at(-1);
   assert.strictEqual(second.method, 'sendMessage');
@@ -42,7 +42,7 @@ test('import via message, then review a full session', async () => {
 
   // pressing the same stale button again is rejected
   const before = calls.length;
-  await press(buttons[2].callback_data);
+  await press(buttons[1].callback_data);
   assert.strictEqual(calls[before].method, 'answerCallbackQuery');
   assert.strictEqual(calls[before].payload.text, 'Not active');
 });
@@ -91,7 +91,7 @@ test('old-format buttons without direction still work', async () => {
   const { calls, send, press } = setup();
   await send('a, A\nb, B');
   await send('/review', cmd('review'));
-  const id = calls.at(-1).payload.reply_markup.inline_keyboard[0][3].callback_data.split(':')[1];
+  const id = calls.at(-1).payload.reply_markup.inline_keyboard[0][0].callback_data.split(':')[1];
   await press(`g:${id}:easy:2`);
   assert.ok(calls.some((c) => c.method === 'editMessageReplyMarkup'));
   assert.strictEqual(calls.at(-1).method, 'sendMessage');
