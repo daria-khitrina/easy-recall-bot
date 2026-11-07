@@ -38,7 +38,7 @@ test('import via message, then review a full session', async () => {
   assert.ok(calls.some((c) => c.method === 'editMessageReplyMarkup'));
   const second = calls.at(-1);
   assert.strictEqual(second.method, 'sendMessage');
-  assert.match(second.payload.reply_markup.inline_keyboard[0][0].callback_data, /^g:\d+:again:2$/);
+  assert.match(second.payload.reply_markup.inline_keyboard[0][0].callback_data, /^g:\d+:again:2:(de|en)$/);
 
   // pressing the same stale button again is rejected
   const before = calls.length;
