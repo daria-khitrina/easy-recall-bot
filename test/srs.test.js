@@ -46,3 +46,12 @@ test('selection: due before new, new ordered by rank, fills with fresh cards', (
   assert.deepStrictEqual(selectSessionCards(cards, 3, NOW).map((c) => c.id), [2, 3, 1]);
   assert.deepStrictEqual(selectSessionCards(cards, 1, NOW).map((c) => c.id), [2]);
 });
+
+test('DE->EN: only failure counts fully, successes are a weak pass', () => {
+  assert.strictEqual(applyGrade(card(), 'easy', NOW, 'de').state, 'learning');
+  assert.strictEqual(applyGrade(card(), 'easy', NOW, 'de').due, NOW + 10 * MIN);
+  const base = { state: 'review', interval: 10, ease: 2.5, step: -1 };
+  const r = applyGrade(card(base), 'easy', NOW, 'de');
+  assert.deepStrictEqual([r.interval, r.ease], [12, 2.5]);
+  assert.strictEqual(applyGrade(card(base), 'again', NOW, 'de').state, 'learning');
+});
