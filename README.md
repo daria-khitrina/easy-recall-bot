@@ -12,7 +12,7 @@ A small Telegram bot for learning German words with spaced repetition, running o
   ```
 
   Format: `German word, English translation, example sentence` (example optional, may contain commas). Sending a word that already exists updates it.
-- **`/review`** – up to 5 cards per session, shown in a random direction:
+- **`/review`** – up to 10 cards per session, shown in a random direction:
   - `erledigen → ||to complete||` with the example visible
   - `to complete → ||erledigen||` with the example hidden
 

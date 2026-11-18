@@ -22,8 +22,8 @@ test('grading works once; a stale button for a not-due card is rejected', () => 
   assert.strictEqual(gradeCard(data, 1, 'bogus', now + 10 ** 12), null);
 });
 
-test('session is capped at 5 cards', () => {
+test('session is capped at 10 cards', () => {
   const data = emptyData();
-  importText(data, Array.from({ length: 8 }, (_, i) => `w${i}, t${i}`).join('\n'));
-  assert.strictEqual(nextCards(data).length, 5);
+  importText(data, Array.from({ length: 15 }, (_, i) => `w${i}, t${i}`).join('\n'));
+  assert.strictEqual(nextCards(data).length, 10);
 });
